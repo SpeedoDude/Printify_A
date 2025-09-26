@@ -11,6 +11,4 @@ RUN pip install --no-cache-dir -r requirements.txt
 # Copy the rest of your application code into the container
 COPY . .
 
-# Command to run your Flask application
-# Gunicorn is a production-ready web server for Python.
-CMD ["gunicorn", "--bind", "0.0.0.0:8080", "app:app"]
+CMD ["streamlit", "run", "streamlit_app.py", "--server.port=8080", "--server.address=0.0.0.0"]
