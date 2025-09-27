@@ -22,8 +22,10 @@ def run_order_fulfiller():
         order_id = order['id']
         print(f"\n   -> Fulfilling Order ID: {order_id}")
         
+        # CORRECTED METHOD CALL
         response = client.send_order_to_production(order_id)
-        if response:
+        
+        if response is not None:
             print(f"      ✅ Success! Order {order_id} sent to production.")
         else:
             print(f"      ❌ Failed to send order {order_id} to production.")
