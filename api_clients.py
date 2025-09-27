@@ -27,6 +27,9 @@ class PrintifyApiClient:
             url = f"{self.base_url}{endpoint}"
             response = requests.request(method, url, headers=self.headers, json=payload)
             response.raise_for_status()
+            # Handle cases where response might be empty
+            if response.status_code == 204 or not response.content:
+                return {}
             return response.json()
         except requests.exceptions.HTTPError as e:
             print(f"❌ HTTP Error for {method} {endpoint}: {e.response.status_code} - {e.response.text}")
@@ -54,10 +57,24 @@ class PrintifyApiClient:
         """Fetches orders from the shop, filtering by status."""
         return self._request("GET", f"/shops/{self.shop_id}/orders.json?status={status}")
 
-    def send_to_production(self, order_id):
+    def send_order_to_production(self, order_id):
         """Sends an external order to production."""
         endpoint = f"/shops/{self.shop_id}/orders/{order_id}/send_to_production.json"
         return self._request("POST", endpoint, payload={})
+        
+    # --- ADDED METHODS FOR CATALOG EXPLORER AND INVENTORY SYNC ---
+    
+    def get_blueprints(self):
+        """Fetches all available blueprints from the catalog."""
+        return self._request("GET", "/catalog/blueprints.json")
+
+    def get_blueprint_details(self, blueprint_id):
+        """Fetches details for a specific blueprint."""
+        return self._request("GET", f"/catalog/blueprints/{blueprint_id}.json")
+
+    def get_blueprint_variants(self, blueprint_id, provider_id):
+        """Fetches variants for a specific blueprint and print provider."""
+        return self._request("GET", f"/catalog/blueprints/{blueprint_id}/print_providers/{provider_id}/variants.json")
 
 
 class GeminiApiClient:
@@ -77,4 +94,3 @@ class GeminiApiClient:
         except Exception as e:
             print(f"❌ Gemini content generation failed: {e}")
             return None
-
